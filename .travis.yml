@@ -1,0 +1,16 @@
+language: go
+
+
+script: go test -v .
+install: true
+go_import_path: github.com/oremj/awsssh
+go:
+  - 1.7
+before_deploy: |
+  go build .
+deploy:
+  provider: releases
+  file: awsssh
+  skip_cleanup: true
+  on:
+    tags: true
