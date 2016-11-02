@@ -9,15 +9,11 @@ import (
 	"syscall"
 
 	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/ec2metadata"
-	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/ec2"
+	"github.com/oremj/aws-ssh/awsutils"
 )
 
 var command = flag.String("c", "", "command to run, if set")
-
-var awsSess *session.Session
-var ec2Sess *ec2.EC2
 
 func init() {
 	flag.Usage = func() {
@@ -25,17 +21,6 @@ func init() {
 		flag.PrintDefaults()
 	}
 
-	awsSess := session.Must(session.NewSession())
-
-	// If AWS_REGION is not set, try to detect region
-	if envRegion := os.Getenv("AWS_REGION"); envRegion == "" {
-		meta := ec2metadata.New(awsSess)
-		if region, _ := meta.Region(); region != "" {
-			awsSess = awsSess.Copy(&aws.Config{Region: aws.String(region)})
-		}
-	}
-
-	ec2Sess = ec2.New(awsSess)
 }
 
 func getInstanceHostname(instanceID string) string {
@@ -45,7 +30,7 @@ func getInstanceHostname(instanceID string) string {
 		},
 	}
 
-	res, err := ec2Sess.DescribeInstances(input)
+	res, err := awsutils.EC2Sess.DescribeInstances(input)
 	if err != nil {
 		panic(err)
 	}
