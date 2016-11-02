@@ -6,11 +6,9 @@ install: true
 go_import_path: github.com/oremj/aws-ssh
 go:
   - 1.7
-before_deploy: |
-  pwd
-  ls
-  GOOS=linux GOARCH=amd64 go build -o aws-ssh_linux_amd64 .
-  GOOS=darwin GOARCH=amd64 go build -o aws-ssh_darwin_amd64 .
+before_deploy:
+  - GOOS=linux GOARCH=amd64 go build -o aws-ssh_linux_amd64 .
+  - GOOS=darwin GOARCH=amd64 go build -o aws-ssh_darwin_amd64 .
 deploy:
   api_key: ${GITHUB_OAUTH}
   provider: releases
