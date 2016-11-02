@@ -27,9 +27,12 @@ func init() {
 
 	awsSess := session.Must(session.NewSession())
 
-	meta := ec2metadata.New(awsSess)
-	if region, _ := meta.Region(); region != "" {
-		awsSess = awsSess.Copy(&aws.Config{Region: aws.String(region)})
+	// If AWS_REGION is not set, try to detect region
+	if envRegion := os.Getenv("AWS_REGION"); envRegion == "" {
+		meta := ec2metadata.New(awsSess)
+		if region, _ := meta.Region(); region != "" {
+			awsSess = awsSess.Copy(&aws.Config{Region: aws.String(region)})
+		}
 	}
 
 	ec2Sess = ec2.New(awsSess)

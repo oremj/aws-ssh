@@ -3,7 +3,7 @@ language: go
 
 script: go test -v .
 install: true
-go_import_path: github.com/oremj/awsssh
+go_import_path: github.com/oremj/aws-ssh
 go:
   - 1.7
 before_deploy: |
@@ -12,7 +12,7 @@ before_deploy: |
   go build .
 deploy:
   provider: releases
-  file: awsssh
+  file: aws-ssh
   skip_cleanup: true
   on:
     tags: true
