@@ -9,10 +9,14 @@ go:
 before_deploy: |
   pwd
   ls
-  go build .
+  GOOS=linux GOARCH=amd64 go build -o aws-ssh_linux_amd64 .
+  GOOS=darwin GOARCH=amd64 go build -o aws-ssh_darwin_amd64 .
 deploy:
+  api_key: ${GITHUB_OAUTH}
   provider: releases
-  file: aws-ssh
+  file: 
+    - aws-ssh_linux_amd64
+    - aws-ssh_darwin_amd64
   skip_cleanup: true
   on:
     tags: true
