@@ -6,6 +6,11 @@ install: true
 go_import_path: github.com/oremj/aws-tools
 go:
   - 1.7
+script:
+  - go test github.com/oremj/aws-tools/awsutils
+  - go test github.com/oremj/aws-tools/aws-ssh
+  - go test github.com/oremj/aws-tools/aws-instancelist
+
 before_deploy:
   - GOOS=linux GOARCH=amd64 go build -o aws-ssh_linux_amd64 ./aws-ssh
   - GOOS=darwin GOARCH=amd64 go build -o aws-ssh_darwin_amd64 ./aws-ssh
