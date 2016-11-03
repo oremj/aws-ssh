@@ -3,18 +3,22 @@ language: go
 
 script: go test -v .
 install: true
-go_import_path: github.com/oremj/aws-ssh
+go_import_path: github.com/oremj/aws-tools
 go:
   - 1.7
 before_deploy:
-  - GOOS=linux GOARCH=amd64 go build -o aws-ssh_linux_amd64 .
-  - GOOS=darwin GOARCH=amd64 go build -o aws-ssh_darwin_amd64 .
+  - GOOS=linux GOARCH=amd64 go build -o aws-ssh_linux_amd64 ./aws-ssh
+  - GOOS=darwin GOARCH=amd64 go build -o aws-ssh_darwin_amd64 ./aws-ssh
+  - GOOS=linux GOARCH=amd64 go build -o aws-instancelist_linux_amd64 ./aws-instancelist
+  - GOOS=darwin GOARCH=amd64 go build -o aws-instancelist_darwin_amd64 ./aws-instancelist
 deploy:
   api_key: ${GITHUB_OAUTH}
   provider: releases
   file: 
     - aws-ssh_linux_amd64
     - aws-ssh_darwin_amd64
+    - aws-instancelist_linux_amd64
+    - aws-instancelist_darwin_amd64
   skip_cleanup: true
   on:
     tags: true
