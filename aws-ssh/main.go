@@ -13,9 +13,10 @@ import (
 	"github.com/oremj/aws-tools/awsutils"
 )
 
-var command = flag.String("c", "", "command to run, if set")
+var command string
 
 func init() {
+	flag.StringVar(&command, "c", "", "command to run, if set")
 	flag.Usage = func() {
 		fmt.Fprintf(os.Stderr, "Usage: %s [-c command] [user@]instance-id [ssh-args]\n", os.Args[0])
 		flag.PrintDefaults()
@@ -73,8 +74,8 @@ func main() {
 
 	sshArgv := append([]string{"ssh"}, sshArgs...)
 	sshArgv = append(sshArgv, user+hostName)
-	if *command != "" {
-		sshArgv = append(sshArgv, *command)
+	if command != "" {
+		sshArgv = append(sshArgv, command)
 	}
 	if err := syscall.Exec("/usr/bin/ssh", sshArgv, os.Environ()); err != nil {
 		panic(err)

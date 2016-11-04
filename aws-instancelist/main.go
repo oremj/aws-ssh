@@ -13,8 +13,10 @@ import (
 	"github.com/oremj/aws-tools/awsutils"
 )
 
-var filterFlag []string
-var verboseFlag = flag.Bool("v", false, "Print all tags")
+var (
+	filterFlag  []string
+	verboseFlag bool
+)
 
 func init() {
 	flag.Usage = func() {
@@ -23,6 +25,7 @@ func init() {
 		flag.PrintDefaults()
 	}
 
+	flag.BoolVar(&verboseFlag, "v", false, "Print all tags")
 	flag.Var((*stringSliceVar)(&filterFlag), "f", "filters that are passed to DescribeInstances")
 }
 
@@ -78,7 +81,7 @@ func parseFilters(filterStrs []string) ([]*ec2.Filter, error) {
 
 func formatInstance(inst *ec2.Instance) string {
 	tmp := fmt.Sprintf("%s\t%s\t%s\t", *inst.InstanceId, *inst.PublicDnsName, *inst.PrivateIpAddress)
-	if *verboseFlag {
+	if verboseFlag {
 		return tmp + formatTags(inst)
 	}
 	return tmp + getTag(inst, "Name")
