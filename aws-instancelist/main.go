@@ -1,14 +1,12 @@
 package main
 
 import (
-	"errors"
 	"flag"
 	"fmt"
 	"log"
 	"os"
 	"strings"
 
-	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ec2"
 	"github.com/oremj/aws-tools/awsutils"
 )
@@ -26,23 +24,7 @@ func init() {
 	}
 
 	flag.BoolVar(&verboseFlag, "v", false, "Print all tags")
-	flag.Var((*stringSliceVar)(&filterFlag), "f", "filters that are passed to DescribeInstances")
-}
-
-func getInstances(filters []*ec2.Filter) []*ec2.Instance {
-	input := &ec2.DescribeInstancesInput{
-		Filters: filters,
-	}
-	res, err := awsutils.EC2Sess.DescribeInstances(input)
-	if err != nil {
-		panic(err)
-	}
-
-	var instances []*ec2.Instance
-	for _, reservation := range res.Reservations {
-		instances = append(instances, reservation.Instances...)
-	}
-	return instances
+	flag.Var((*awsutils.StringSliceVar)(&filterFlag), "f", "filters that are passed to DescribeInstances")
 }
 
 func getTag(inst *ec2.Instance, tagKey string) string {
@@ -63,22 +45,6 @@ func formatTags(inst *ec2.Instance) string {
 	return strings.Join(tags, "|")
 }
 
-func parseFilters(filterStrs []string) ([]*ec2.Filter, error) {
-	var filters []*ec2.Filter
-	for _, filterStr := range filterStrs {
-		filterParts := strings.SplitN(filterStr, "=", 2)
-		if len(filterParts) != 2 {
-			return nil, errors.New("Filter must be in the format Key=Value,Value,Value")
-		}
-		filters = append(filters, &ec2.Filter{
-			Name:   aws.String(filterParts[0]),
-			Values: aws.StringSlice(strings.Split(filterParts[1], ",")),
-		})
-	}
-
-	return filters, nil
-}
-
 func formatInstance(inst *ec2.Instance) string {
 	tmp := fmt.Sprintf("%s\t%s\t%s\t", *inst.InstanceId, *inst.PublicDnsName, *inst.PrivateIpAddress)
 	if verboseFlag {
@@ -89,11 +55,11 @@ func formatInstance(inst *ec2.Instance) string {
 
 func main() {
 	flag.Parse()
-	filters, err := parseFilters(filterFlag)
+	filters, err := awsutils.ParseFilters(filterFlag)
 	if err != nil {
 		log.Fatalf("Could not parse filters: %v", err)
 	}
-	instances := getInstances(filters)
+	instances := awsutils.GetInstances(filters)
 	for _, inst := range instances {
 		if *inst.PublicDnsName != "" {
 			fmt.Println(formatInstance(inst))
